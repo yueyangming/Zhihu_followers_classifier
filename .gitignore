@@ -3,4 +3,5 @@
 # My files:
 cookies
 __pycache__
-.idea
+.idea/
+**/.idea/
