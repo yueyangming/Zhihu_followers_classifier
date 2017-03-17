@@ -29,6 +29,7 @@ TOPIC_COUNTER = {}
 NEIGHBOR_COUNTER = {}
 TOPICS = []
 NEIGHBORS = []
+data_folder = 'data'
 
 # Stimulated log in.
 try:
@@ -170,41 +171,6 @@ def Get_topic(User_url):
 
     return topics_list
 
-# def Get_data(followers_list):
-#
-#     followers_neighbors = []
-#     followers_topics = []
-#
-#     for follower in followers_list:
-#
-#         neighbor = Get_main_user_neighbor(PEOPLE_URL + follower)
-#         followers_neighbors.append(neighbor)
-#         for each in neighbor:
-#             if each in NEIGHBORS:
-#                 NEIGHBOR_COUNTER[each] += 1
-#             else:
-#                 if each != CENTER_ID:
-#                     NEIGHBORS.append(each)
-#                     NEIGHBOR_COUNTER[each] = 1
-#
-#         topic = Get_topic(PEOPLE_URL + follower)
-#         followers_topics.append(topic)
-#         for each in topic:
-#             if each in TOPICS:
-#                 TOPIC_COUNTER[each] += 1
-#             else:
-#                 TOPICS.append(each)
-#                 TOPIC_COUNTER[each] = 1
-#
-#     # Save these variables into file.
-#     # pickle.dump(followers_list, open('followers_list.txt', 'wb'))
-#     pickle.dump(followers_neighbors, open('followers_neighbors.txt', 'wb'))
-#     pickle.dump(followers_topics,open('followers_topics.txt', 'wb'))
-#     pickle.dump(NEIGHBOR_COUNTER,open('NEIGHBOR_COUNTER.txt', 'wb'))
-#     pickle.dump(NEIGHBORS,open('NEIGHBOR.txt', 'wb'))
-#     pickle.dump(TOPICS,open('TOPICS.txt', 'wb'))
-#     pickle.dump(TOPIC_COUNTER,open('TOPIC_COUNTER.txt', 'wb'))
-
 def Sort_dict(Dict,k):
     #  Returns k largest numbers.
     items = Dict.items()
@@ -217,12 +183,17 @@ def Sort_dict(Dict,k):
 
 if __name__ == '__main__':
 
+    origin_dir = os.getcwd()
+    if not os.path.exists(data_folder):
+        os.mkdir(data_folder)
+    os.chdir(data_folder)
+
     if os.path.isfile('followers_list.txt'):
         followers_list = pickle.load(open('followers_list.txt', 'rb'))
     else:
         followers_list = Get_People_list(CENTER_URL, 0, 1)
     if os.path.isfile('followers_topics.txt'):  # If file already exists, load else Get data.
-        pickle.dump(followers_list, open('followers_list.txt', 'rb'))
+        # followers_list = pickle.load(followers_list, open('followers_list.txt', 'rb'))
         followers_neighbors = pickle.load(open('followers_neighbors.txt', 'rb'))
         followers_topics = pickle.load(open('followers_topics.txt', 'rb'))
         NEIGHBOR_COUNTER = pickle.load(open('NEIGHBOR_COUNTER.txt', 'rb'))
@@ -281,7 +252,7 @@ if __name__ == '__main__':
 
     # Analyze data
     n_clusters = 5
-    Results_list = [ [] for i in range(n_clusters) ]
+    Results_list = [[] for i in range(n_clusters) ]
     Results_Kmeans = KMeans(n_clusters= n_clusters, random_state = 42).fit_predict(followers_matrix)
 
     for index, each in enumerate(Results_Kmeans):
@@ -295,10 +266,6 @@ if __name__ == '__main__':
                 f_output.write(each + '\n')
             f_output.write('\n')
 
+    os.chdir(origin_dir)
 
-
-
-
-
-
-
+    print('Process Complete')
