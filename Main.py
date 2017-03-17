@@ -12,7 +12,6 @@ import os
 
 import zhihu_login
 
-
 # Hyperparameter
 
 NUM_NEIGHBORS = 5 # How many neighbors you want to search ?
