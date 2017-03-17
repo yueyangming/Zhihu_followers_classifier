@@ -4,6 +4,7 @@ __author__ = ' Harold (Finch) '
 
 import numpy as np
 import sklearn
+from sklearn.cluster import KMeans
 import re
 import math
 import pickle
@@ -18,6 +19,7 @@ NUM_NEIGHBORS = 5 # How many neighbors you want to search ?
 CENTER_ID = 'yue-yangming'
 SELECTED_NEIGHBORS_NUM = 20
 SELECTED_TOPICS_NUM = 20
+TEST_SIZE = 100
 
 
 # Initialize
@@ -232,7 +234,7 @@ if __name__ == '__main__':
         followers_neighbors = []
         followers_topics = []
         reporter = 0
-        for follower in followers_list:
+        for follower in followers_list[:TEST_SIZE]:
             print(reporter)
             reporter += 1
             neighbor = Get_main_user_neighbor(PEOPLE_URL + follower)
@@ -269,17 +271,31 @@ if __name__ == '__main__':
     temp_2 = Sort_dict(TOPIC_COUNTER, SELECTED_TOPICS_NUM)
     sorted_TOPIC_COUNTER = temp_2[1:]
 
-    followers_matrix = np.zeros(shape=[len(followers_list), SELECTED_NEIGHBORS_NUM + SELECTED_TOPICS_NUM])
-    for idx, follower in enumerate(followers_list[0:100]):
+    # followers_matrix = np.zeros(shape=[len(followers_list), SELECTED_NEIGHBORS_NUM + SELECTED_TOPICS_NUM])
+    followers_matrix = np.zeros(shape=[TEST_SIZE, SELECTED_NEIGHBORS_NUM + SELECTED_TOPICS_NUM])
+    for idx, follower in enumerate(followers_list[:TEST_SIZE]):
         for idx_neighbor, neighbor in enumerate(sorted_NEIGHBOR_COUNTER):
             followers_matrix[idx, idx_neighbor] = int( neighbor in followers_neighbors[idx])
         for idx_topic, topic in enumerate(sorted_TOPIC_COUNTER):
             followers_matrix[idx, SELECTED_NEIGHBORS_NUM + idx_topic] = int(topic in followers_topics[idx])
 
+    # Analyze data
+    n_clusters = 5
+    Results_list = [ [] for i in range(n_clusters) ]
+    Results_Kmeans = KMeans(n_clusters= n_clusters, random_state = 42).fit_predict(followers_matrix)
 
-    # idx, val in enumerate(ints):
+    for index, each in enumerate(Results_Kmeans):
+        Results_list[int(each)].append(followers_list[index])
 
-    # Sort dict:
+    with open('Output.txt','w') as f_output:
+        for i in range(n_clusters):
+            f_output.write('Cluster {} : '.format(i+1) + '\n\n')
+            for each in Results_list[i]:
+                each = PEOPLE_URL + each
+                f_output.write(each + '\n')
+            f_output.write('\n')
+
+
 
 
 
